@@ -14,6 +14,7 @@
 // includes, project
 #include <helper_cuda.h>
 #include <helper_image.h>
+#include <omp.h>
 
 #define max(a,b) (((a)>(b))?(a):(b))
 #define min(a,b) (((a)<(b))?(a):(b))
@@ -76,6 +77,50 @@ void harrisDetectorOpenMP(const pixel_t *h_idata, const int w, const int h,
                   pixel_t * h_odata)
 {
     //TODO
+    int n_threads = 2;
+
+    omp_set_num_threads(n_threads);
+
+    int i,j,k,l;  // indexes in image
+    int Ix, Iy;   // gradient in XX and YY
+    int R;        // R metric
+    int sumIx2, sumIy2, sumIxIy;
+
+    #pragma omp parallel for shared(h_odata) private(i, j) firstprivate(h_idata, w, h)
+    for(i=0; i<h; i++) //height image
+    {
+        for(j=0; j<w; j++) //width image
+        {   
+            #pragma omp critical
+            h_odata[i*w+j]=h_idata[i*w+j]/4; // to obtain a faded background image
+        }
+    }
+
+
+    for(i=ws+1; i<h-ws-1; i++) //height image
+    {
+        for(j=ws+1; j<w-ws-1; j++) //width image
+        {
+           sumIx2=0;sumIy2=0;sumIxIy=0;
+           for(k=-ws; k<=ws; k++) //height window
+              {
+                  for(l=-ws; l<=ws; l++) //width window
+                  {
+                        Ix = ((int)h_idata[(i+k-1)*w + j+l] - (int)h_idata[(i+k+1)*w + j+l])/32;         
+                        Iy = ((int)h_idata[(i+k)*w + j+l-1] - (int)h_idata[(i+k)*w + j+l+1])/32;         
+                        sumIx2 += Ix*Ix;
+                        sumIy2 += Iy*Iy;
+                        sumIxIy += Ix*Iy;
+                  }
+              }
+
+              R = sumIx2*sumIy2-sumIxIy*sumIxIy-0.05*(sumIx2+sumIy2)*(sumIx2+sumIy2);
+              if(R > threshold) {
+                   h_odata[i*w+j]=MAX_BRIGHTNESS; 
+              }
+        }
+    }
+
 }
 
 // print command line format
