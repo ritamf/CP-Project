@@ -91,7 +91,11 @@ void harrisDetectorOpenMP(const pixel_t *h_idata, const int w, const int h,
     {
         for(j=0; j<w; j++) //width image
         {   
+<<<<<<< HEAD
             //#pragma omp critical
+=======
+            #pragma omp critical
+>>>>>>> main
             h_odata[i*w+j]=h_idata[i*w+j]/4; // to obtain a faded background image
         }
     }
