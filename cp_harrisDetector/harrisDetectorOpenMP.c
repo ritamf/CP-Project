@@ -77,7 +77,7 @@ void harrisDetectorOpenMP(const pixel_t *h_idata, const int w, const int h,
                   pixel_t * h_odata)
 {
     //TODO
-    int n_threads = 2;
+    int n_threads = 4;
 
     omp_set_num_threads(n_threads);
 
@@ -86,16 +86,17 @@ void harrisDetectorOpenMP(const pixel_t *h_idata, const int w, const int h,
     int R;        // R metric
     int sumIx2, sumIy2, sumIxIy;
 
-    #pragma omp parallel for shared(h_odata) private(i, j) firstprivate(h_idata, w, h)
+    #pragma omp parallel for shared(h_odata) private(i, j) firstprivate(h_idata, w, h) schedule(guided,8)
     for(i=0; i<h; i++) //height image
     {
+        //#pragma omp parallel for shared(h_odata) private(i, j) firstprivate(h_idata, w, h)
         for(j=0; j<w; j++) //width image
         {   
             h_odata[i*w+j]=h_idata[i*w+j]/4; // to obtain a faded background image
         }
     }
 
-    #pragma omp parallel for shared(h_odata) private(i, j, sumIx2, sumIy2, sumIxIy, Ix, Iy) firstprivate(h_idata, w, h, ws, threshold)
+    #pragma omp parallel for shared(h_odata) private(i, j, sumIx2, sumIy2, sumIxIy, Ix, Iy) firstprivate(h_idata, w, h, ws, threshold) schedule(guided,8)
     for(i=ws+1; i<h-ws-1; i++) //height image
     {
         for(j=ws+1; j<w-ws-1; j++) //width image
