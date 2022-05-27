@@ -25,6 +25,24 @@
 typedef int pixel_t;
 
 
+
+__global__ void reduce1( pixel_t *h_idata, pixel_t *h_odata, int *size ) { 
+    extern __shared__ h_odata;
+        
+        
+    //unsigned int tid = threadIdx.x;
+    int id = blockIdx.x*blockDim.x + threadIdx.x; 
+
+    int size2 = size[0];
+        
+    if( id < size2)
+    {
+        h_odata[id]=h_idata[id]/4; // to obtain a faded background image
+    }
+
+}
+
+
 // harris detector code to run on the host
 void harrisDetectorHost(const pixel_t *h_idata, const int w, const int h, 
                 const int ws,               // window size
@@ -75,6 +93,94 @@ void harrisDetectorDevice(const pixel_t *h_idata, const int w, const int h,
                   pixel_t * h_odata)
 {
     //TODO
+
+    int i,j,k,l;  // indexes in image
+    int Ix, Iy;   // gradient in XX and YY
+    int R;        // R metric
+    int sumIx2, sumIy2, sumIxIy;
+
+
+    int size = h*w;
+
+    int size_arr[2];
+
+    int memsize = size * sizeof(pixel_t); 
+    int memsize_size_arr = 2 * sizeof(int); 
+
+    int threadsPerBlock = 32;
+
+    int blocksPerGrid = size/threadsPerBlock;
+
+    //int MaxRowPerBlock = threadsPerBlock/h;
+    //int threadsPerBlock = 32;
+
+    //int blocksPerGrid = (size + threadsPerBlock - 1)/threadsPerBlock;
+
+    //int gaussKernelSize = 7;
+
+    // allocate host memory
+    pixel_t * devPtrh_idata;
+    pixel_t * devPtrh_odata;
+    int * devPtrsize;
+
+    
+    // Allocate device memory
+    cudaMalloc((void**)&devPtrh_idata, memsize); 
+    cudaMalloc((void**)&devPtrh_odata, memsize); 
+    cudaMalloc((void**)&devPtrsize, memsize_size_arr ); 
+    
+
+    // Copy data (data to process) from host to device (from CPU to GPU)
+    cudaMemcpy(devPtrh_idata, h_idata, memsize,  cudaMemcpyHostToDevice); 
+    cudaMemcpy(devPtrh_odata, h_odata, memsize,  cudaMemcpyHostToDevice); 
+    cudaMemcpy(devPtrsize, size_arr, memsize_size_arr,  cudaMemcpyHostToDevice); 
+
+    // __global__ functions are called:  Func <<< dim grid, dim block >>> (parameter); 
+    dim3 dimGrid(blocksPerGrid,1,1);
+    dim3 dimBlock(threadsPerBlock,1,1);
+
+    
+    // Execute the Kernel 
+    reduce1 <<<dimGrid, dimBlock>>> (devPtrh_idata,  devPtrh_odata, devPtrResult); 
+
+    // Copy data from device (results) back to host 
+    cudaMemcpy(h_odata, devPtrh_odata, memsize,  cudaMemcpyDeviceToHost); 
+    
+    
+    for(i=ws+1; i<h-ws-1; i++) //height image
+    {
+        for(j=ws+1; j<w-ws-1; j++) //width image
+        {
+           sumIx2=0;sumIy2=0;sumIxIy=0;
+           for(k=-ws; k<=ws; k++) //height window
+              {
+                  for(l=-ws; l<=ws; l++) //width window
+                  {
+                        Ix = ((int)h_idata[(i+k-1)*w + j+l] - (int)h_idata[(i+k+1)*w + j+l])/32;         
+                        Iy = ((int)h_idata[(i+k)*w + j+l-1] - (int)h_idata[(i+k)*w + j+l+1])/32;         
+                        sumIx2 += Ix*Ix;
+                        sumIy2 += Iy*Iy;
+                        sumIxIy += Ix*Iy;
+                  }
+              }
+
+              R = sumIx2*sumIy2-sumIxIy*sumIxIy-0.05*(sumIx2+sumIy2)*(sumIx2+sumIy2);
+              if(R > threshold) {
+                   h_odata[i*w+j]=MAX_BRIGHTNESS; 
+              }
+        }
+    }
+
+
+    
+
+
+
+    // Free device memory
+    cudaFree(devPtrh_idata); 
+    cudaFree(devPtrh_odata);
+
+
 }
 
 // print command line format
