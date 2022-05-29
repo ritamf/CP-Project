@@ -10,6 +10,11 @@
 #include <assert.h>
 #include <float.h>
 
+// adicionado para copia de arrays
+#include<algorithm>
+#include<vector>
+#include<iostream>
+
 // includes, project
 #include <helper_cuda.h>
 #include <helper_image.h>
@@ -27,26 +32,38 @@ typedef int pixel_t;
 
 
 __global__ void reduce1( pixel_t *h_idata, pixel_t *h_odata, int *size ) { 
-    extern __shared__ pixel_t sdata[];        
+    //extern __shared__ pixel_t sdata[];        
         
-    unsigned int tid = threadIdx.x;
+    //unsigned int tid = threadIdx.x;
     unsigned int id = blockIdx.x*blockDim.x + threadIdx.x;
+    unsigned int size2 = size[0];
+    //unsigned int write_global_id = blockDim.x * blockIdx.x;
 
-    sdata[tid] = h_idata[id];
+    ///sdata[tid] = h_idata[id];
 
     //__syncthreads(); 
 
-    int size2 = size[0];
+    
         
-    if( id < size2)
-    {
-        sodata[id]=h_idata[id]/4; // to obtain a faded background image
-    }
+    //for(unsigned int s=1; s < blockDim.x; s++)
+    //{
+    //    sdata[tid]=sdata[tid + s]/4; // to obtain a faded background image
+
+    //    __syncthreads();
+    //}
+
+    
 
     // write result for this block to global mem 
-    if (id == 0) {
-        g_odata[blockIdx.x] = sdata[0];
+    //if (tid == 0) {
+    //    std::copy(sdata, sdata + blockDim.x, h_odata + id);
+    //    //g_odata[id] = sdata[0];
+    //}
+
+    if(id < size2){
+        h_odata[id] = h_idata[id]/4;
     }
+    
 
 }
 
