@@ -71,10 +71,13 @@ __global__ void reduceWithLoop(pixel_t *h_idata, pixel_t *h_odata, int *size)
     unsigned int w = size[2];
     unsigned int threshold = size[3];
 
-    unsigned int i, j, k, l; // indexes in image
+    unsigned int l, k; // indexes in image
     unsigned int Ix, Iy;     // gradient in XX and YY
     unsigned int R;          // R metric
     unsigned int sumIx2, sumIy2, sumIxIy;
+
+    unsigned int j = id/w;
+    unsigned int i = id - (j*w);
 
     if (id < size2)
     {
