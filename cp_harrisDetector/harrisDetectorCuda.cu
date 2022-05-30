@@ -211,6 +211,11 @@ void harrisDetectorDevice(const pixel_t *h_idata, const int w, const int h,
     // Copy data from device (results) back to host
     cudaMemcpy(h_odata, devPtrh_odata, memsize, cudaMemcpyDeviceToHost);
     cudaFree(devPtrh_odata);
+    
+    
+    cudaMalloc((void **)&devPtrh_odata, memsize);
+
+
     cudaMemcpy(devPtrh_odata, h_odata, memsize, cudaMemcpyHostToDevice);
     reduceWithLoop<<<dimGrid, dimBlock>>>(devPtrh_idata, devPtrh_odata, devPtrsize);
     cudaMemcpy(h_odata, devPtrh_odata, memsize, cudaMemcpyDeviceToHost);
