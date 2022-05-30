@@ -68,6 +68,39 @@ __global__ void reduce1( pixel_t *h_idata, pixel_t *h_odata, int *size ) {
 }
 
 
+__global__ void reduceWithLoop( pixel_t *h_idata, pixel_t *h_odata, int *size ) { 
+    
+    extern __shared__ pixel_t sdata[];        
+        
+    unsigned int tid = threadIdx.x;
+    unsigned int id = blockIdx.x*blockDim.x + threadIdx.x;
+    unsigned int size2 = size[0];
+    unsigned int write_global_id = blockDim.x * blockIdx.x;
+
+    sdata[tid] = h_idata[id];
+
+    //__syncthreads(); 
+
+    for(unsigned int s=1; s < blockDim.x; s++)
+    {
+       sdata[tid]=sdata[tid + s]/4; // to obtain a faded background image
+
+       __syncthreads();
+    }
+
+    // write result for this block to global mem 
+    if (tid == 0) {
+       std::copy(sdata, sdata + blockDim.x, h_odata + id);
+       //g_odata[id] = sdata[0];
+    }
+
+    if(id < size2){
+        h_odata[id] = h_idata[id]/4;
+    }
+
+}
+
+
 // harris detector code to run on the host
 void harrisDetectorHost(const pixel_t *h_idata, const int w, const int h, 
                 const int ws,               // window size
