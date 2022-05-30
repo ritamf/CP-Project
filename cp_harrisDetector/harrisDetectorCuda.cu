@@ -64,26 +64,31 @@ __global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int *size)
 __global__ void reduceWithLoop(pixel_t *h_idata, pixel_t *h_odata, int *size)
 {
 
-    unsigned int tid = threadIdx.x;
+    //unsigned int tid = threadIdx.x;
     unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int size2 = size[0];
     unsigned int ws = size[1];
-    unsigned int w = size[2];
-    unsigned int threshold = size[3];
+    int w = size[2];
+    int threshold = size[3];
 
-    unsigned int l, k; // indexes in image
-    unsigned int Ix, Iy;     // gradient in XX and YY
-    unsigned int R;          // R metric
-    unsigned int sumIx2, sumIy2, sumIxIy;
+    int l, k, j, i; // indexes in image
+    int Ix, Iy;     // gradient in XX and YY
+    int R;          // R metric
+    int sumIx2, sumIy2, sumIxIy;
 
-    unsigned int j = id/w;
-    unsigned int i = id - (j*w);
 
     if (id < size2)
     {
+        
+        j = id/w;          // row, height
+        i = id - (j*w);    // column
+
         sumIx2 = 0;
         sumIy2 = 0;
         sumIxIy = 0;
+
+        
+
         for (k = -ws; k <= ws; k++) // height window
         {
             for (l = -ws; l <= ws; l++) // width window
@@ -93,14 +98,20 @@ __global__ void reduceWithLoop(pixel_t *h_idata, pixel_t *h_odata, int *size)
                 sumIx2 += Ix * Ix;
                 sumIy2 += Iy * Iy;
                 sumIxIy += Ix * Iy;
+
+                __syncthreads();
             }
         }
 
+        
         R = sumIx2 * sumIy2 - sumIxIy * sumIxIy - 0.05 * (sumIx2 + sumIy2) * (sumIx2 + sumIy2);
         if (R > threshold)
         {
             h_odata[i * w + j] = MAX_BRIGHTNESS;
+
         }
+        printf("R = %d\n",R);
+        printf("\n sumIx2= %d, sumIy2 = %d, sumIxIy = %d",sumIx2,sumIy2, sumIxIy);
     }
 }
 
@@ -211,8 +222,10 @@ void harrisDetectorDevice(const pixel_t *h_idata, const int w, const int h,
     // Copy data from device (results) back to host
     cudaMemcpy(h_odata, devPtrh_odata, memsize, cudaMemcpyDeviceToHost);
     cudaFree(devPtrh_odata);
-    
-    
+    //free(devPtrh_odata);
+
+
+    //pixel_t *devPtrh_odata;
     cudaMalloc((void **)&devPtrh_odata, memsize);
 
 
