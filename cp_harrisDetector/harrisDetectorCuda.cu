@@ -29,23 +29,23 @@
 // store negative values.
 typedef int pixel_t;
 
-__global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int *size)
+__global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int kernel_type, int ws, int w, int threshold, int h, int size)
 {
     // extern __shared__ pixel_t sdata[];
 
     // unsigned int tid = threadIdx.x;
-    int id = blockIdx.x * blockDim.x + threadIdx.x;
-    int size2 = size[0];
-    int type_kernel = size[4];
+    unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+    //unsigned int size2 = size[0];
+    //int type_kernel = size[4];
 
     int l, k; 
-            int j, i; // indexes in image
+            int j, i, j_id, i_id; // indexes in image
             int Ix, Iy;     // gradient in XX and YY
             int R;          // R metric
             int sumIx2, sumIy2, sumIxIy;
-            int threshold;
-            int w;
-            int ws;
+            //unsigned int threshold;
+            //int w, h;
+            //int ws;
 
     // unsigned int write_global_id = blockDim.x * blockIdx.x;
 
@@ -67,22 +67,26 @@ __global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int *size)
     //}
 
 
-    if (id < size2)
+    if (id < size)
     {
-        if (type_kernel == 0)
+        if (kernel_type == 0)
         {
             h_odata[id] = h_idata[id] / 4;
+            //printf("FADED\n");
         }
         else
         {
-            ws = size[1];
-            w = size[2];
-            threshold = size[3];
-
+            //ws = size[1];
+            //w = size[2];
+            //threshold = size[3];
+            //h = size[5];
             
 
-            j = id/w;          // row, height
-            i = id - (j*w);    // column
+            j_id = id/w;          // row, height
+            i_id = id - (j_id*w);    // column
+
+            i = ws + 1 + i_id;
+            j = ws + 1 + j_id;
 
             sumIx2 = 0;
             sumIy2 = 0;
@@ -93,12 +97,16 @@ __global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int *size)
             {
                 for (l = -ws; l <= ws; l++) // width window
                 {
-                    Ix = ((int)h_idata[(i + k - 1) * w + j + l] - (int)h_idata[(i + k + 1) * w + j + l]) / 32;
-                    Iy = ((int)h_idata[(i + k) * w + j + l - 1] - (int)h_idata[(i + k) * w + j + l + 1]) / 32;
-                    sumIx2 += Ix * Ix;
-                    sumIy2 += Iy * Iy;
-                    sumIxIy += Ix * Iy;
+                    if((i >= ws+1) && (i < h-ws-1) && (j >= ws+1) && (j < w-ws-1))
+                    {
+                        Ix = ((int)h_idata[(i + k - 1) * w + j + l] - (int)h_idata[(i + k + 1) * w + j + l]) / 32;
+                        Iy = ((int)h_idata[(i + k) * w + j + l - 1] - (int)h_idata[(i + k) * w + j + l + 1]) / 32;
+                        sumIx2 += Ix * Ix;
+                        sumIy2 += Iy * Iy;
+                        sumIxIy += Ix * Iy;
 
+                        //printf("\n sumIx2= %d, sumIy2 = %d, sumIxIy = %d",sumIx2,sumIy2, sumIxIy);
+                    }
                 
                 }
             }
@@ -240,16 +248,19 @@ void harrisDetectorDevice(const pixel_t *h_idata, const int w, const int h,
 
     int size = h * w;
 
-    int size_arr[6];
+    //int size_arr[7];
 
-    size_arr[0] = size;
-    size_arr[1] = ws;
-    size_arr[2] = w;
-    size_arr[3] = threshold;
-    size_arr[4] = 0;    // fade the image on kernel
+    //int size = size;
+    //int ws_device;
+    //int w_device = w;
+    //size_arr[3] = threshold;
+    //size_arr[4] = 0;    // fade the image on kernel
+    //size_arr[5] = h;
+
+    int kernel_type = 0;
 
     int memsize = size * sizeof(pixel_t);
-    int memsize_size_arr = 6 * sizeof(int);
+    //int memsize_size_arr = 7 * sizeof(int);
 
     int threadsPerBlock = 32;
 
@@ -265,24 +276,24 @@ void harrisDetectorDevice(const pixel_t *h_idata, const int w, const int h,
     // allocate host memory
     pixel_t *devPtrh_idata;
     pixel_t *devPtrh_odata;
-    int *devPtrsize;
+    //int *devPtrsize;
 
     // Allocate device memory
     cudaMalloc((void **)&devPtrh_idata, memsize);
     cudaMalloc((void **)&devPtrh_odata, memsize);
-    cudaMalloc((void **)&devPtrsize, memsize_size_arr);
+    //cudaMalloc((void **)&devPtrsize, memsize_size_arr);
 
     // Copy data (data to process) from host to device (from CPU to GPU)
     cudaMemcpy(devPtrh_idata, h_idata, memsize, cudaMemcpyHostToDevice);
     cudaMemcpy(devPtrh_odata, h_odata, memsize, cudaMemcpyHostToDevice);
-    cudaMemcpy(devPtrsize, size_arr, memsize_size_arr, cudaMemcpyHostToDevice);
+    //cudaMemcpy(devPtrsize, size_arr, memsize_size_arr, cudaMemcpyHostToDevice);
 
     // __global__ functions are called:  Func <<< dim grid, dim block >>> (parameter);
     dim3 dimGrid(blocksPerGrid, 1, 1);
     dim3 dimBlock(threadsPerBlock, 1, 1);
 
     // Execute the Kernel
-    reduce1<<<dimGrid, dimBlock>>>(devPtrh_idata, devPtrh_odata, devPtrsize);
+    reduce1<<<dimGrid, dimBlock>>>(devPtrh_idata, devPtrh_odata, kernel_type, ws, w, threshold, h, size);
 
     // Copy data from device (results) back to host
     cudaMemcpy(h_odata, devPtrh_odata, memsize, cudaMemcpyDeviceToHost);
@@ -293,19 +304,19 @@ void harrisDetectorDevice(const pixel_t *h_idata, const int w, const int h,
     //pixel_t *devPtrh_odata;
     cudaMalloc((void **)&devPtrh_odata, memsize);
 
-    size_arr[4] = 1;    // analize the corners on the kernel
-
+    //size_arr[4] = 1;    // analize the corners on the kernel
+    kernel_type = 1;
     cudaMemcpy(devPtrh_odata, h_odata, memsize, cudaMemcpyHostToDevice);
     //reduceWithLoop<<<dimGrid, dimBlock>>>(devPtrh_idata, devPtrh_odata, devPtrsize);
-    reduce1<<<dimGrid, dimBlock>>>(devPtrh_idata, devPtrh_odata, devPtrsize);
+    reduce1<<<dimGrid, dimBlock>>>(devPtrh_idata, devPtrh_odata, kernel_type, ws, w, threshold, h, size);
     cudaMemcpy(h_odata, devPtrh_odata, memsize, cudaMemcpyDeviceToHost);
 
     // Free device memory
     cudaFree(devPtrh_idata);
     cudaFree(devPtrh_odata);
-    cudaFree(devPtrsize);
+    //cudaFree(devPtrsize);
 
-    
+
 }
 
 // print command line format
