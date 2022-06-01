@@ -1,0 +1,25 @@
+\begin{table}[htb]
+\caption{OpenMP - Tabela tempos finais.}
+\label{tabela1}
+\begin{tabular}{lllll}
+\cline{1-4}
+
+\multicolumn{1}{|l|}{\cellcolor[HTML]{D8FED1}Implementação} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{D8FED1}\begin{tabular}[c]{@{}l@{}}Tempo final\\ Paralelização\end{tabular}} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{D8FED1}\begin{tabular}[c]{@{}l@{}}Tempo final\\ Sequencial\end{tabular}} &
+  \multicolumn{1}{l|}{\cellcolor[HTML]{D8FED1}\begin{tabular}[c]{@{}l@{}}Eficiência\\ \%\end{tabular}} &
+   \\ \cline{1-4}
+
+\multicolumn{1}{|l|}{ schedule(guided,8) } & \multicolumn{1}{l|}{ 73.991 } & \multicolumn{1}{l|}{ 35.514 } & \multicolumn{1}{l|}{ 52.00\% } &  \\ \cline{1-4} 
+\multicolumn{1}{|l|}{ schedule(guided,2) } & \multicolumn{1}{l|}{ 68.886 } & \multicolumn{1}{l|}{ 34.568 } & \multicolumn{1}{l|}{ 49.82\% } &  \\ \cline{1-4} 
+\multicolumn{1}{|l|}{ schedule(guided,30) } & \multicolumn{1}{l|}{ 70.321 } & \multicolumn{1}{l|}{ 34.22 } & \multicolumn{1}{l|}{ 51.34\% } &  \\ \cline{1-4} 
+\multicolumn{1}{|l|}{ schedule(static,8) } & \multicolumn{1}{l|}{ 70.801 } & \multicolumn{1}{l|}{ 31.451 } & \multicolumn{1}{l|}{ 55.58\% } &  \\ \cline{1-4} 
+\multicolumn{1}{|l|}{ schedule(dynamic,8) } & \multicolumn{1}{l|}{ 70.862 } & \multicolumn{1}{l|}{ 33.905 } & \multicolumn{1}{l|}{ 52.15\% } &  \\ \cline{1-4} 
+\multicolumn{1}{|l|}{ schedule(guided,8) collapse(2) } & \multicolumn{1}{l|}{ 69.926 } & \multicolumn{1}{l|}{ 33.457 } & \multicolumn{1}{l|}{ 52.15\% } &  \\ \cline{1-4} 
+\multicolumn{1}{|l|}{ schedule(guided,2) collapse(2) } & \multicolumn{1}{l|}{ 73.5 } & \multicolumn{1}{l|}{ 33.42 } & \multicolumn{1}{l|}{ 54.53\% } &  \\ \cline{1-4} 
+\multicolumn{1}{|l|}{ schedule(guided,30) collapse(2) } & \multicolumn{1}{l|}{ 69.368 } & \multicolumn{1}{l|}{ 32.912 } & \multicolumn{1}{l|}{ 52.55\% } &  \\ \cline{1-4} 
+\multicolumn{1}{|l|}{ schedule(static,8) collapse(2) } & \multicolumn{1}{l|}{ 69.237 } & \multicolumn{1}{l|}{ 41.414 } & \multicolumn{1}{l|}{ 40.19\% } &  \\ \cline{1-4} 
+\multicolumn{1}{|l|}{ schedule(dynamic,8) collapse(2) } & \multicolumn{1}{l|}{ 68.571 } & \multicolumn{1}{l|}{ 45.227 } & \multicolumn{1}{l|}{ 34.04\% } &  \\ \cline{1-4} 
+
+ \end{tabular} 
+ \end{table} 
