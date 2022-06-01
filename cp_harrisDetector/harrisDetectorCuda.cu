@@ -10,11 +10,6 @@
 #include <assert.h>
 #include <float.h>
 
-// adicionado para copia de arrays
-#include <algorithm>
-#include <vector>
-#include <iostream>
-
 // includes, project
 #include <helper_cuda.h>
 #include <helper_image.h>
@@ -31,40 +26,14 @@ typedef int pixel_t;
 
 __global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int kernel_type, int ws, int w, int threshold, int h, int size)
 {
-    // extern __shared__ pixel_t sdata[];
 
-    // unsigned int tid = threadIdx.x;
     unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
-    //unsigned int size2 = size[0];
-    //int type_kernel = size[4];
 
     int l, k; 
-            int j, i, j_id, i_id; // indexes in image
-            int Ix, Iy;     // gradient in XX and YY
-            int R;          // R metric
-            int sumIx2, sumIy2, sumIxIy;
-            //unsigned int threshold;
-            //int w, h;
-            //int ws;
-
-    // unsigned int write_global_id = blockDim.x * blockIdx.x;
-
-    /// sdata[tid] = h_idata[id];
-
-    //__syncthreads();
-
-    // for(unsigned int s=1; s < blockDim.x; s++)
-    //{
-    //     sdata[tid]=sdata[tid + s]/4; // to obtain a faded background image
-
-    //    __syncthreads();
-    //}
-
-    // write result for this block to global mem
-    // if (tid == 0) {
-    //    std::copy(sdata, sdata + blockDim.x, h_odata + id);
-    //    //g_odata[id] = sdata[0];
-    //}
+    int j, i, j_id, i_id; // indexes in image
+    int Ix, Iy;     // gradient in XX and YY
+    int R;          // R metric
+    int sumIx2, sumIy2, sumIxIy;
 
 
     if (id < size)
@@ -72,18 +41,13 @@ __global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int kernel_type, int
         if (kernel_type == 0)
         {
             h_odata[id] = h_idata[id] / 4;
-            //printf("FADED\n");
         }
+
         else
         {
-            //ws = size[1];
-            //w = size[2];
-            //threshold = size[3];
-            //h = size[5];
             
-
-            j_id = id/h;          // row, height
-            i_id = id - (j_id*h);    // column
+            j_id = id/h;            // row, height
+            i_id = id - (j_id*h);   // column
 
             i = ws + 1 + i_id;
             j = ws + 1 + j_id;
@@ -104,8 +68,6 @@ __global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int kernel_type, int
                         sumIx2 += Ix * Ix;
                         sumIy2 += Iy * Iy;
                         sumIxIy += Ix * Iy;
-
-                        //printf("\n sumIx2= %d, sumIy2 = %d, sumIxIy = %d",sumIx2,sumIy2, sumIxIy);
                     }
                 
                 }
@@ -118,74 +80,11 @@ __global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int kernel_type, int
                 h_odata[i * w + j] = MAX_BRIGHTNESS;
 
             }
-            //__syncthreads;
-            //printf("R = %d\n",R);
-            //printf("\n sumIx2= %d, sumIy2 = %d, sumIxIy = %d",sumIx2,sumIy2, sumIxIy);
-            //printf("\n Ix= %d, Iy = %d, i = %d, j = %d",Ix,Iy,i,j);
+            
         }
     }
 }
 
-/*
-__global__ void reduceWithLoop(pixel_t *h_idata, pixel_t *h_odata, int *size)
-{
-
-    //unsigned int tid = threadIdx.x;
-    unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
-    unsigned int size2 = size[0];
-    int ws = size[1];
-    int w = size[2];
-    int threshold = size[3];
-    int l, k; 
-    unsigned int j, i; // indexes in image
-    int Ix, Iy;     // gradient in XX and YY
-    int R;          // R metric
-    int sumIx2, sumIy2, sumIxIy;
-    
-    
-
-
-    if (id < size2)
-    {
-
-
-
-        
-        j = id/w;          // row, height
-        i = id - (j*w);    // column
-
-        sumIx2 = 0;
-        sumIy2 = 0;
-        sumIxIy = 0;
-
-
-        for (k = -ws; k <= ws; k++) // height window
-        {
-            for (l = -ws; l <= ws; l++) // width window
-            {
-                Ix = ((int)h_idata[(i + k - 1) * w + j + l] - (int)h_idata[(i + k + 1) * w + j + l]) / 32;
-                Iy = ((int)h_idata[(i + k) * w + j + l - 1] - (int)h_idata[(i + k) * w + j + l + 1]) / 32;
-                sumIx2 += Ix * Ix;
-                sumIy2 += Iy * Iy;
-                sumIxIy += Ix * Iy;
-
-                
-            }
-        }
-
-        
-        R = sumIx2 * sumIy2 - sumIxIy * sumIxIy - 0.05 * (sumIx2 + sumIy2) * (sumIx2 + sumIy2);
-        if (R > threshold)
-        {
-            h_odata[i * w + j] = MAX_BRIGHTNESS;
-
-        }
-        //printf("R = %d\n",R);
-        //printf("\n sumIx2= %d, sumIy2 = %d, sumIxIy = %d",sumIx2,sumIy2, sumIxIy);
-        printf("\n Ix= %d, Iy = %d, i = %d, j = %d",Ix,Iy,i,j);
-    }
-}
-*/
 
 // harris detector code to run on the host
 void harrisDetectorHost(const pixel_t *h_idata, const int w, const int h, 
@@ -236,44 +135,16 @@ void harrisDetectorDevice(const pixel_t *h_idata, const int w, const int h,
                           const int ws, const int threshold,
                           pixel_t *h_odata)
 {
-    // TODO
-
-    // int i, j, k, l; // indexes in image
-    // int Ix, Iy;     // gradient in XX and YY
-    // int R;          // R metric
-    // int sumIx2, sumIy2, sumIxIy;
 
     int size = h * w;
-
-    //int size_arr[7];
-
-    //int size = size;
-    //int ws_device;
-    //int w_device = w;
-    //size_arr[3] = threshold;
-    //size_arr[4] = 0;    // fade the image on kernel
-    //size_arr[5] = h;
-
     int kernel_type = 0;
-
     int memsize = size * sizeof(pixel_t);
-    //int memsize_size_arr = 7 * sizeof(int);
-
     int threadsPerBlock = 32;
-
     int blocksPerGrid = size / threadsPerBlock;
-
-    // int MaxRowPerBlock = threadsPerBlock/h;
-    // int threadsPerBlock = 32;
-
-    // int blocksPerGrid = (size + threadsPerBlock - 1)/threadsPerBlock;
-
-    // int gaussKernelSize = 7;
 
     // allocate host memory
     pixel_t *devPtrh_idata;
     pixel_t *devPtrh_odata;
-    //int *devPtrsize;
 
     // Allocate device memory
     cudaMalloc((void **)&devPtrh_idata, memsize);
@@ -283,8 +154,8 @@ void harrisDetectorDevice(const pixel_t *h_idata, const int w, const int h,
     // Copy data (data to process) from host to device (from CPU to GPU)
     cudaMemcpy(devPtrh_idata, h_idata, memsize, cudaMemcpyHostToDevice);
     cudaMemcpy(devPtrh_odata, h_odata, memsize, cudaMemcpyHostToDevice);
-    //cudaMemcpy(devPtrsize, size_arr, memsize_size_arr, cudaMemcpyHostToDevice);
 
+    // Call kernel to Fade image
     // __global__ functions are called:  Func <<< dim grid, dim block >>> (parameter);
     dim3 dimGrid(blocksPerGrid, 1, 1);
     dim3 dimBlock(threadsPerBlock, 1, 1);
@@ -293,26 +164,20 @@ void harrisDetectorDevice(const pixel_t *h_idata, const int w, const int h,
     reduce1<<<dimGrid, dimBlock>>>(devPtrh_idata, devPtrh_odata, kernel_type, ws, w, threshold, h, size);
 
     // Copy data from device (results) back to host
-    cudaMemcpy(h_odata, devPtrh_odata, memsize, cudaMemcpyDeviceToHost);
-    cudaFree(devPtrh_odata);
-    //free(devPtrh_odata);
+    //cudaMemcpy(h_odata, devPtrh_odata, memsize, cudaMemcpyDeviceToHost);
 
 
-    //pixel_t *devPtrh_odata;
-    cudaMalloc((void **)&devPtrh_odata, memsize);
-
-    //size_arr[4] = 1;    // analize the corners on the kernel
     kernel_type = 1;
-    cudaMemcpy(devPtrh_odata, h_odata, memsize, cudaMemcpyHostToDevice);
-    //reduceWithLoop<<<dimGrid, dimBlock>>>(devPtrh_idata, devPtrh_odata, devPtrsize);
+    // Call kernel to calculate corners
+    // __global__ functions are called:  Func <<< dim grid, dim block >>> (parameter);
     reduce1<<<dimGrid, dimBlock>>>(devPtrh_idata, devPtrh_odata, kernel_type, ws, w, threshold, h, size);
+    
+    // Copy data from device (results) back to host
     cudaMemcpy(h_odata, devPtrh_odata, memsize, cudaMemcpyDeviceToHost);
 
     // Free device memory
     cudaFree(devPtrh_idata);
     cudaFree(devPtrh_odata);
-    //cudaFree(devPtrsize);
-
 
 }
 
