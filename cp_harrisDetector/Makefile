@@ -1,11 +1,14 @@
 
 .PHONY: all clean
 
-TARGETS = harrisDetectorCuda harrisDetectorOpenMP testDiffs
+TARGETS = harrisDetectorCuda harrisDetectorCudaShared harrisDetectorOpenMP testDiffs
 
 all: $(TARGETS)
 
 harrisDetectorCuda: harrisDetectorCuda.cu
+	nvcc -arch=sm_30 -O3 -ICommon $^ -o $@
+
+harrisDetectorCudaShared: harrisDetectorCudaShared.cu
 	nvcc -arch=sm_30 -O3 -ICommon $^ -o $@
 
 harrisDetectorOpenMP: harrisDetectorOpenMP.c
