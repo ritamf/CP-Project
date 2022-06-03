@@ -95,7 +95,7 @@ void harrisDetectorOpenMP(const pixel_t *h_idata, const int w, const int h,
         }
     }
 
-    #pragma omp parallel for shared(h_odata, h_idata) private(j, sumIx2, sumIy2, sumIxIy, Ix, Iy) firstprivate(w, h, ws, threshold) schedule(guided,8) collapse(2)
+    #pragma omp parallel for shared(h_odata, h_idata) private(i, j, sumIx2, sumIy2, sumIxIy, Ix, Iy) firstprivate(w, h, ws, threshold) schedule(guided,8) collapse(2)
     for(i=ws+1; i<h-ws-1; i++) //height image
     {
         for(j=ws+1; j<w-ws-1; j++) //width image
