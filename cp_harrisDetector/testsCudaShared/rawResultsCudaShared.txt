@@ -17,3 +17,40 @@ Device processing time: 0.338912 (ms)
 chessL.pgm
 Host processing time: 1.673504 (ms)
 Device processing time: 0.412160 (ms)
+
+Do you want to compare the images (y/n)? y
+Difference between chessLResultsSharedCuda and chessLReferenceSharedCuda
+0 diffs of 1
+0 diffs of 2
+0 diffs of 3
+0 diffs of 4
+0 diffs of 5
+1364 diffs > 5
+Difference between chessLResultsSharedCuda and chessLReferenceSharedCuda
+0 diffs of 1
+0 diffs of 2
+0 diffs of 3
+0 diffs of 4
+0 diffs of 5
+1364 diffs > 5
+Difference between chessLResultsSharedCuda and chessLReferenceSharedCuda
+0 diffs of 1
+0 diffs of 2
+0 diffs of 3
+0 diffs of 4
+0 diffs of 5
+1364 diffs > 5
+Difference between chessLResultsSharedCuda and chessLReferenceSharedCuda
+0 diffs of 1
+0 diffs of 2
+0 diffs of 3
+0 diffs of 4
+0 diffs of 5
+1364 diffs > 5
+Difference between chessLResultsSharedCuda and chessLReferenceSharedCuda
+0 diffs of 1
+0 diffs of 2
+0 diffs of 3
+0 diffs of 4
+0 diffs of 5
+1364 diffs > 5

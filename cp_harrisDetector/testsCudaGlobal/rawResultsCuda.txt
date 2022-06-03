@@ -1,19 +1,31 @@
 chess.pgm
-Host processing time: 1.074656 (ms)
-Device processing time: 0.374624 (ms)
+Host processing time: 1.036224 (ms)
+Device processing time: 0.359968 (ms)
 
 chessBig.pgm
-Host processing time: 55.988224 (ms)
-Device processing time: 7.223936 (ms)
+Host processing time: 58.408737 (ms)
+Device processing time: 7.296416 (ms)
 
 house.pgm
-Host processing time: 2.060288 (ms)
-Device processing time: 0.510720 (ms)
+Host processing time: 2.059552 (ms)
+Device processing time: 0.517344 (ms)
 
 chessRotate1.pgm
-Host processing time: 1.032192 (ms)
-Device processing time: 0.362368 (ms)
+Host processing time: 1.071104 (ms)
+Device processing time: 0.370656 (ms)
 
 chessL.pgm
-Host processing time: 1.662976 (ms)
-Device processing time: 0.485728 (ms)
+Host processing time: 1.669408 (ms)
+Device processing time: 0.486784 (ms)
+
+Do you want to compare the images (y/n)? y
+Difference between chessLResultsCuda and chessLReferenceCuda
+images are identical
+Difference between chessLResultsCuda and chessLReferenceCuda
+images are identical
+Difference between chessLResultsCuda and chessLReferenceCuda
+images are identical
+Difference between chessLResultsCuda and chessLReferenceCuda
+images are identical
+Difference between chessLResultsCuda and chessLReferenceCuda
+images are identical
