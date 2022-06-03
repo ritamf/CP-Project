@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "algorithm": "cpp",
-        "random": "c",
-        "helper_image.h": "c"
-    }
-}
