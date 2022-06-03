@@ -40,9 +40,9 @@ __global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int kernel_type, int
         {
             h_odata[id] = h_idata[id] / 4;  // Fade Image
         }
-
         else
         {
+            // Process Corners
             i_id = id / w;                  // row, height
             j_id = id - (i_id * w);         // column
 
