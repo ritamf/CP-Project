@@ -1,0 +1,19 @@
+chess.pgm
+Host processing time: 1.021024 (ms)
+Device processing time: 0.327232 (ms)
+
+chessBig.pgm
+Host processing time: 56.281090 (ms)
+Device processing time: 5.639136 (ms)
+
+house.pgm
+Host processing time: 2.157536 (ms)
+Device processing time: 0.467456 (ms)
+
+chessRotate1.pgm
+Host processing time: 1.222656 (ms)
+Device processing time: 0.338912 (ms)
+
+chessL.pgm
+Host processing time: 1.673504 (ms)
+Device processing time: 0.412160 (ms)
