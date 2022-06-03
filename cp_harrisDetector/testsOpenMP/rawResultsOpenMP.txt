@@ -1,51 +1,39 @@
-Para chessBig.pgm
-
-
 schedule(guided,8)
-Host processing time: 73.991000 (ms)
-OpenMP processing time: 35.514000 (ms)
-
+Host processing time: 72.391000 (ms)
+OpenMP processing time: 34.336000 (ms)
 
 schedule(guided,2)
-Host processing time: 68.886000 (ms)
-OpenMP processing time: 34.568000 (ms)
-
+Host processing time: 75.074000 (ms)
+OpenMP processing time: 34.119000 (ms)
 
 schedule(guided,30)
-Host processing time: 70.321000 (ms)
-OpenMP processing time: 34.220000 (ms)
-
+Host processing time: 80.364000 (ms)
+OpenMP processing time: 33.931000 (ms)
 
 schedule(static,8)
-Host processing time: 70.801000 (ms)
-OpenMP processing time: 31.451000 (ms)
-
+Host processing time: 78.884000 (ms)
+OpenMP processing time: 34.566000 (ms)
 
 schedule(dynamic,8)
-Host processing time: 70.862000 (ms)
-OpenMP processing time: 33.905000 (ms)
-
+Host processing time: 73.466000 (ms)
+OpenMP processing time: 35.415000 (ms)
 
 schedule(guided,8) collapse(2)
-Host processing time: 69.926000 (ms)
-OpenMP processing time: 33.457000 (ms)
-
+Host processing time: 75.854000 (ms)
+OpenMP processing time: 32.770000 (ms)
 
 schedule(guided,2) collapse(2)
-Host processing time: 73.500000 (ms)
-OpenMP processing time: 33.420000 (ms)
-
+Host processing time: 77.030000 (ms)
+OpenMP processing time: 34.603000 (ms)
 
 schedule(guided,30) collapse(2)
-Host processing time: 69.368000 (ms)
-OpenMP processing time: 32.912000 (ms)
-
+Host processing time: 76.179000 (ms)
+OpenMP processing time: 33.069000 (ms)
 
 schedule(static,8) collapse(2)
-Host processing time: 69.237000 (ms)
-OpenMP processing time: 41.414000 (ms)
-
+Host processing time: 79.066000 (ms)
+OpenMP processing time: 40.598000 (ms)
 
 schedule(dynamic,8) collapse(2)
-Host processing time: 68.571000 (ms)
-OpenMP processing time: 45.227000 (ms)
+Host processing time: 77.259000 (ms)
+OpenMP processing time: 44.975000 (ms)
