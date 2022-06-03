@@ -29,25 +29,27 @@ __global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int kernel_type, int
 
     unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
 
-    int l, k; 
+    int l, k;
     int j, i, j_id, i_id; // indexes in image
-    int Ix, Iy;     // gradient in XX and YY
-    int R;          // R metric
+    int Ix, Iy;           // gradient in XX and YY
+    int R;                // R metric
     int sumIx2, sumIy2, sumIxIy;
-
 
     if (id < size)
     {
         if (kernel_type == 0)
         {
             h_odata[id] = h_idata[id] / 4;
+
+            i_id = id / w;          // row, height
+            j_id = id - (i_id * w); // column
         }
 
         else
         {
-            
-            j_id = id/h;            // row, height
-            i_id = id - (j_id*h);   // column
+
+            j_id = id / h;          // row, height
+            i_id = id - (j_id * h); // column
 
             i = ws + 1 + i_id;
             j = ws + 1 + j_id;
@@ -56,12 +58,11 @@ __global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int kernel_type, int
             sumIy2 = 0;
             sumIxIy = 0;
 
-
             for (k = -ws; k <= ws; k++) // height window
             {
                 for (l = -ws; l <= ws; l++) // width window
                 {
-                    if((i >= ws+1) && (i < h-ws-1) && (j >= ws+1) && (j < w-ws-1))
+                    if ((i >= ws + 1) && (i < h - ws - 1) && (j >= ws + 1) && (j < w - ws - 1))
                     {
                         Ix = ((int)h_idata[(i + k - 1) * w + j + l] - (int)h_idata[(i + k + 1) * w + j + l]) / 32;
                         Iy = ((int)h_idata[(i + k) * w + j + l - 1] - (int)h_idata[(i + k) * w + j + l + 1]) / 32;
@@ -69,66 +70,64 @@ __global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int kernel_type, int
                         sumIy2 += Iy * Iy;
                         sumIxIy += Ix * Iy;
                     }
-                
                 }
             }
 
-        
             R = sumIx2 * sumIy2 - sumIxIy * sumIxIy - 0.05 * (sumIx2 + sumIy2) * (sumIx2 + sumIy2);
             if (R > threshold)
             {
                 h_odata[i * w + j] = MAX_BRIGHTNESS;
-
             }
-            
         }
     }
 }
 
-
 // harris detector code to run on the host
-void harrisDetectorHost(const pixel_t *h_idata, const int w, const int h, 
-                const int ws,               // window size
-                const int threshold,        // threshold value to detect corners
-                pixel_t * reference)
+void harrisDetectorHost(const pixel_t *h_idata, const int w, const int h,
+                        const int ws,        // window size
+                        const int threshold, // threshold value to detect corners
+                        pixel_t *reference)
 {
-    int i,j,k,l;  // indexes in image
-    int Ix, Iy;   // gradient in XX and YY
-    int R;        // R metric
+    int i, j, k, l; // indexes in image
+    int Ix, Iy;     // gradient in XX and YY
+    int R;          // R metric
     int sumIx2, sumIy2, sumIxIy;
 
-    for(i=0; i<h; i++) //height image
+    for (i = 0; i < h; i++) // height image
     {
-        for(j=0; j<w; j++) //width image
+        for (j = 0; j < w; j++) // width image
         {
-            reference[i*w+j]=h_idata[i*w+j]/4; // to obtain a faded background image
+            reference[i * w + j] = h_idata[i * w + j] / 4; // to obtain a faded background image
         }
     }
 
-    for(i=ws+1; i<h-ws-1; i++) //height image
+    for (i = ws + 1; i < h - ws - 1; i++) // height image
     {
-        for(j=ws+1; j<w-ws-1; j++) //width image
+        for (j = ws + 1; j < w - ws - 1; j++) // width image
         {
-           sumIx2=0;sumIy2=0;sumIxIy=0;
-           for(k=-ws; k<=ws; k++) //height window
-              {
-                  for(l=-ws; l<=ws; l++) //width window
-                  {
-                        Ix = ((int)h_idata[(i+k-1)*w + j+l] - (int)h_idata[(i+k+1)*w + j+l])/32;         
-                        Iy = ((int)h_idata[(i+k)*w + j+l-1] - (int)h_idata[(i+k)*w + j+l+1])/32;         
-                        sumIx2 += Ix*Ix;
-                        sumIy2 += Iy*Iy;
-                        sumIxIy += Ix*Iy;
-                  }
-              }
+            sumIx2 = 0;
+            sumIy2 = 0;
+            sumIxIy = 0;
+            for (k = -ws; k <= ws; k++) // height window
+            {
+                for (l = -ws; l <= ws; l++) // width window
+                {
+                    Ix = ((int)h_idata[(i + k - 1) * w + j + l] - (int)h_idata[(i + k + 1) * w + j + l]) / 32;
+                    Iy = ((int)h_idata[(i + k) * w + j + l - 1] - (int)h_idata[(i + k) * w + j + l + 1]) / 32;
+                    sumIx2 += Ix * Ix;
+                    sumIy2 += Iy * Iy;
+                    sumIxIy += Ix * Iy;
+                }
+            }
 
-              R = sumIx2*sumIy2-sumIxIy*sumIxIy-0.05*(sumIx2+sumIy2)*(sumIx2+sumIy2);
-              if(R > threshold) {
-                   reference[i*w+j]=MAX_BRIGHTNESS; 
-              }
+            R = sumIx2 * sumIy2 - sumIxIy * sumIxIy - 0.05 * (sumIx2 + sumIy2) * (sumIx2 + sumIy2);
+            if (R > threshold)
+            {
+                reference[i * w + j] = MAX_BRIGHTNESS;
+            }
         }
     }
-}   
+}
 
 // harris detector code to run on the GPU
 void harrisDetectorDevice(const pixel_t *h_idata, const int w, const int h,
@@ -149,7 +148,7 @@ void harrisDetectorDevice(const pixel_t *h_idata, const int w, const int h,
     // Allocate device memory
     cudaMalloc((void **)&devPtrh_idata, memsize);
     cudaMalloc((void **)&devPtrh_odata, memsize);
-    //cudaMalloc((void **)&devPtrsize, memsize_size_arr);
+    // cudaMalloc((void **)&devPtrsize, memsize_size_arr);
 
     // Copy data (data to process) from host to device (from CPU to GPU)
     cudaMemcpy(devPtrh_idata, h_idata, memsize, cudaMemcpyHostToDevice);
@@ -164,21 +163,19 @@ void harrisDetectorDevice(const pixel_t *h_idata, const int w, const int h,
     reduce1<<<dimGrid, dimBlock>>>(devPtrh_idata, devPtrh_odata, kernel_type, ws, w, threshold, h, size);
 
     // Copy data from device (results) back to host
-    //cudaMemcpy(h_odata, devPtrh_odata, memsize, cudaMemcpyDeviceToHost);
-
+    // cudaMemcpy(h_odata, devPtrh_odata, memsize, cudaMemcpyDeviceToHost);
 
     kernel_type = 1;
     // Call kernel to calculate corners
     // __global__ functions are called:  Func <<< dim grid, dim block >>> (parameter);
     reduce1<<<dimGrid, dimBlock>>>(devPtrh_idata, devPtrh_odata, kernel_type, ws, w, threshold, h, size);
-    
+
     // Copy data from device (results) back to host
     cudaMemcpy(h_odata, devPtrh_odata, memsize, cudaMemcpyDeviceToHost);
 
     // Free device memory
     cudaFree(devPtrh_idata);
     cudaFree(devPtrh_odata);
-
 }
 
 // print command line format
