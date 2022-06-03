@@ -39,3 +39,15 @@ for i in range(len(tests)):
     print("\nwaiting 10 secs...")
 
     sleep(10)
+
+
+user_input = input("Do you want to compare the images (y/n)? ")
+
+if user_input.lower()=='y':
+    # execute testDiffs
+    for img in tests:
+        img1 = "../"+tests[i].format("ResultsCuda")
+        img2 = "../"+tests[i].format("ReferenceCuda")
+
+        print(f"Difference between {img1[3:]} and {img2[3:]}")
+        os.system("../testDiffs {} {}".format(img1, img2))
