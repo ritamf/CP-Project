@@ -2,7 +2,7 @@ import os
 from time import sleep
 
 # get template code in a string stored in variable lines
-with open("testTemplate_harrisDetectorCuda.cu") as f:
+with open("testTemplate_harrisDetectorCudaShared.cu") as f:
     lines = f.readlines()
     lines = "".join(lines)
 
@@ -15,7 +15,7 @@ tests = [
     "chessL{}.pgm"
 ]
 
-test_scripts = [f"test_harrisDetectorCuda_{tests[i][:-4].format('')}.cu" for i in range(len(tests))]
+test_scripts = [f"test_harrisDetectorCudaShared_{tests[i][:-4].format('')}.cu" for i in range(len(tests))]
 test_results = ""
 
 # execute all tests
@@ -25,8 +25,8 @@ for i in range(len(tests)):
     with open(test_scripts[i],"w") as f:
 
         imgInput = "../"+tests[i].format("")
-        imgOutRes = "../"+tests[i].format("ResultsCuda")
-        imgOutRef = "../"+tests[i].format("ReferenceCuda")
+        imgOutRes = "../"+tests[i].format("ResultsSharedCuda")
+        imgOutRef = "../"+tests[i].format("ReferenceSharedCuda")
         
         f.write(lines.format(imgInput, imgOutRes, imgOutRef))
 
@@ -46,8 +46,8 @@ user_input = input("Do you want to compare the images (y/n)? ")
 if user_input.lower()=='y':
     # execute testDiffs
     for img in tests:
-        img1 = "../"+tests[i].format("ResultsCuda")
-        img2 = "../"+tests[i].format("ReferenceCuda")
+        img1 = "../"+tests[i].format("ResultsSharedCuda")
+        img2 = "../"+tests[i].format("ReferenceSharedCuda")
 
         print(f"Difference between {img1[3:]} and {img2[3:]}")
         os.system("../testDiffs {} {}".format(img1, img2))
