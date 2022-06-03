@@ -26,7 +26,6 @@ typedef int pixel_t;
 
 __global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int kernel_type, int ws, int w, int threshold, int h, int size)
 {
-
     unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
 
     int l, k;
@@ -39,17 +38,15 @@ __global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int kernel_type, int
     {
         if (kernel_type == 0)
         {
-            h_odata[id] = h_idata[id] / 4;
-
-            i_id = id / w;          // row, height
-            j_id = id - (i_id * w); // column
+            h_odata[id] = h_idata[id] / 4;  // Fade Image
+            i_id = id / w;                  // row, height
+            j_id = id - (i_id * w);         // column
         }
 
         else
         {
-
-            j_id = id / h;          // row, height
-            i_id = id - (j_id * h); // column
+            j_id = id / h;                  // row, height
+            i_id = id - (j_id * h);         // column
 
             i = ws + 1 + i_id;
             j = ws + 1 + j_id;
@@ -72,7 +69,7 @@ __global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int kernel_type, int
                     }
                 }
             }
-
+            
             R = sumIx2 * sumIy2 - sumIxIy * sumIxIy - 0.05 * (sumIx2 + sumIy2) * (sumIx2 + sumIy2);
             if (R > threshold)
             {
