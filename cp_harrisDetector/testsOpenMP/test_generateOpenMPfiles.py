@@ -24,6 +24,8 @@ tests = [
 test_scripts = [f"test_harrisDetectorOpenMP_{tests[i].replace('(','').replace(')','').replace(',','').replace(' ','')}.c" for i in range(len(tests))]
 test_results = ""
 
+user_input = input("Do you want to compare the generated images after executing each file (y/n)? ")
+
 # execute all tests
 for i in range(len(tests)):
 
@@ -37,6 +39,10 @@ for i in range(len(tests)):
     # execute code and print results
     print(tests[i])
     os.system(f"./{test_scripts[i][:-2]}")
-    print("\nwaiting 10 secs...")
 
+    # compare images if user has requested it 
+    if user_input.lower()=='y':
+        os.system(f"../testDiffs ../resultChessBigOpenMP.pgm ../referenceChessBigOpenMP.pgm")
+
+    print("\nwaiting 10 secs...")
     sleep(10)

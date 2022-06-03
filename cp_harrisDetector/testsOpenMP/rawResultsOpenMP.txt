@@ -1,39 +1,49 @@
 schedule(guided,8)
-Host processing time: 72.391000 (ms)
-OpenMP processing time: 34.336000 (ms)
+Host processing time: 78.128000 (ms)
+OpenMP processing time: 46.001000 (ms)
+images are identical
 
 schedule(guided,2)
-Host processing time: 75.074000 (ms)
-OpenMP processing time: 34.119000 (ms)
+Host processing time: 74.993000 (ms)
+OpenMP processing time: 34.596000 (ms)
+images are identical
 
 schedule(guided,30)
-Host processing time: 80.364000 (ms)
-OpenMP processing time: 33.931000 (ms)
+Host processing time: 77.436000 (ms)
+OpenMP processing time: 35.930000 (ms)
+images are identical
 
 schedule(static,8)
-Host processing time: 78.884000 (ms)
-OpenMP processing time: 34.566000 (ms)
+Host processing time: 76.780000 (ms)
+OpenMP processing time: 33.424000 (ms)
+images are identical
 
 schedule(dynamic,8)
-Host processing time: 73.466000 (ms)
-OpenMP processing time: 35.415000 (ms)
+Host processing time: 73.751000 (ms)
+OpenMP processing time: 36.809000 (ms)
+images are identical
 
 schedule(guided,8) collapse(2)
-Host processing time: 75.854000 (ms)
-OpenMP processing time: 32.770000 (ms)
+Host processing time: 79.075000 (ms)
+OpenMP processing time: 34.139000 (ms)
+images are identical
 
 schedule(guided,2) collapse(2)
-Host processing time: 77.030000 (ms)
-OpenMP processing time: 34.603000 (ms)
+Host processing time: 79.306000 (ms)
+OpenMP processing time: 34.029000 (ms)
+images are identical
 
 schedule(guided,30) collapse(2)
-Host processing time: 76.179000 (ms)
-OpenMP processing time: 33.069000 (ms)
+Host processing time: 84.712000 (ms)
+OpenMP processing time: 35.061000 (ms)
+images are identical
 
 schedule(static,8) collapse(2)
-Host processing time: 79.066000 (ms)
-OpenMP processing time: 40.598000 (ms)
+Host processing time: 76.716000 (ms)
+OpenMP processing time: 44.364000 (ms)
+images are identical
 
 schedule(dynamic,8) collapse(2)
-Host processing time: 77.259000 (ms)
-OpenMP processing time: 44.975000 (ms)
+Host processing time: 82.498000 (ms)
+OpenMP processing time: 46.623000 (ms)
+images are identical
