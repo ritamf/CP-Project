@@ -4,8 +4,6 @@
 
 Rita Ferrolho - 88822
 
-Cuda files have to be compiled and executed on banana server. 
-
 ```bash
 ###################
 ## generic files ##
