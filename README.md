@@ -59,5 +59,5 @@ ssh cp0102@banana.ua.pt
 scp [-r] 'local/path' cp0102@banana.ua.pt:'./server/path'
 
 # transfer files or directories from banana to local
-scp cp0102@banana.ua.pt:/server/path './local/path'
+scp [-r] cp0102@banana.ua.pt:/server/path './local/path'
 ```
