@@ -49,5 +49,5 @@ if user_input.lower()=='y':
         img1 = "../"+tests[i].format("ResultsCuda")
         img2 = "../"+tests[i].format("ReferenceCuda")
 
-        print(f"Difference between {img1[3:]} and {img2[3:]}")
+        print(f"Difference between {img1[3:-4]} and {img2[3:-4]}")
         os.system("../testDiffs {} {}".format(img1, img2))
