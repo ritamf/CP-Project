@@ -46,8 +46,8 @@ user_input = input("Do you want to compare the images (y/n)? ")
 if user_input.lower()=='y':
     # execute testDiffs
     for img in tests:
-        img1 = "../"+tests[i].format("ResultsSharedCuda")
-        img2 = "../"+tests[i].format("ReferenceSharedCuda")
+        img1 = "../"+img.format("ResultsSharedCuda")
+        img2 = "../"+img.format("ReferenceSharedCuda")
 
         print(f"Difference between {img1[3:-4]} and {img2[3:-4]}")
         os.system("../testDiffs {} {}".format(img1, img2))

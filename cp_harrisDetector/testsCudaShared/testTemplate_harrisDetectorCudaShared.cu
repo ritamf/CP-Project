@@ -29,124 +29,59 @@
 // store negative values.
 typedef int pixel_t;
 
-__global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int kernel_type, int ws, int w, int threshold, int h, int size)
+__global__ void reduce1(pixel_t *h_idata, pixel_t *h_odata, int ws, int w, int threshold, int h, int size)
 {{
     __shared__ pixel_t sdata[33];
 
-    
     int id = blockIdx.x * blockDim.x + threadIdx.x;
-    int tid = threadIdx.x; // thread id de cada block
+    int tid = threadIdx.x;          // thread id de cada block
 
     int l, k; 
-    int j, i, j_id, i_id; // indexes in image
-    int Ix, Iy;     // gradient in XX and YY
-    int R;          // R metric
+    int j, i, j_id, i_id;           // indexes in image
+    int Ix, Iy;                     // gradient in XX and YY
+    int R;                          // R metric
     int sumIx2, sumIy2, sumIxIy;
             
-
-
-    // unsigned int write_global_id = blockDim.x * blockIdx.x;
-
-    /// sdata[tid] = h_idata[id];
-
-    //__syncthreads();
-
-    // for(unsigned int s=1; s < blockDim.x; s++)
-    //{{
-    //     sdata[tid]=sdata[tid + s]/4; // to obtain a faded background image
-
-    //    __syncthreads();
-    //}}
-
-    // write result for this block to global mem
-    // if (tid == 0) {{
-    //    std::copy(sdata, sdata + blockDim.x, h_odata + id);
-    //    //g_odata[id] = sdata[0];
-    //}}
-
-
     if (id < size)
     {{
-        sdata[tid] = h_idata[id];
-        //__syncthreads();
+        sdata[tid] = h_idata[id];   // copy imagem array from global mem to shared
 
-        if (kernel_type == 0)
+        sdata[tid] = sdata[tid] / 4;// Fade Image
+
+        // Process Corners
+        i_id = id/w;                // row, height
+        j_id = id - (i_id*w);       // column
+
+        i = ws + 1 + i_id;
+        j = ws + 1 + j_id;
+
+        sumIx2 = 0;
+        sumIy2 = 0;
+        sumIxIy = 0;
+
+        if((i >= ws+1) && (i < h-ws-1) && (j >= ws+1) && (j < w-ws-1))
         {{
-            sdata[tid] = sdata[tid] / 4;
-            //printf("FADED\n");
-
-           // __syncthreads();
-        //h_odata[id] = sdata[tid];
-        //__syncthreads();
-        
-        //}}
-        //else
-        //{{
-            
-            
-
-            i_id = id/w;            // row, height
-            j_id = id - (i_id*w);   // column
-
-            i = ws + 1 + i_id;
-            j = ws + 1 + j_id;
-
-            sumIx2 = 0;
-            sumIy2 = 0;
-            sumIxIy = 0;
-
-            if((i >= ws+1) && (i < h-ws-1) && (j >= ws+1) && (j < w-ws-1))
-            {{
             for (k = -ws; k <= ws; k++) // height window
             {{
                 for (l = -ws; l <= ws; l++) // width window
-                {{
-                    
-                        Ix = ((int)h_idata[(i + k - 1) * w + j + l] - (int)h_idata[(i + k + 1) * w + j + l]) / 32;
-                        Iy = ((int)h_idata[(i + k) * w + j + l - 1] - (int)h_idata[(i + k) * w + j + l + 1]) / 32;
-                        sumIx2 += Ix * Ix;
-                        sumIy2 += Iy * Iy;
-                        sumIxIy += Ix * Iy;
-                    
-                
+                {{                
+                    Ix = ((int)h_idata[(i + k - 1) * w + j + l] - (int)h_idata[(i + k + 1) * w + j + l]) / 32;
+                    Iy = ((int)h_idata[(i + k) * w + j + l - 1] - (int)h_idata[(i + k) * w + j + l + 1]) / 32;
+                    sumIx2 += Ix * Ix;
+                    sumIy2 += Iy * Iy;
+                    sumIxIy += Ix * Iy;        
                 }}
             }}
-            }}
-
-        
-            R = sumIx2 * sumIy2 - sumIxIy * sumIxIy - 0.05 * (sumIx2 + sumIy2) * (sumIx2 + sumIy2);
-            if (R > threshold)
-            {{
-                sdata[tid] = MAX_BRIGHTNESS;
-
-            }}
-            //__syncthreads();
-            //__syncthreads;
-            
-            //printf("\n sumIx2= %d, sumIy2 = %d, sumIxIy = %d",sumIx2,sumIy2, sumIxIy);
-            //printf("\n Ix= %d, Iy = %d, i = %d, j = %d",Ix,Iy,i,j);
-
-            //h_odata[id] = sdata[tid];
-
         }}
 
-        
-        
-        if (tid == 0)
+        R = sumIx2 * sumIy2 - sumIxIy * sumIxIy - 0.05 * (sumIx2 + sumIy2) * (sumIx2 + sumIy2);
+        if (R > threshold)
         {{
-            for (int cont = 0; cont<blockDim.x; cont++){{
-                h_odata[id+cont] = sdata[cont];
-                //printf("added\n");
-            }}
+            sdata[tid] = MAX_BRIGHTNESS;
         }}
         
-
-        //__syncthreads();
-        h_odata[id] = sdata[tid];
-        //__syncthreads();
-        //printf("added");
-        
-        
+        // Copy deteted corners to export array
+        h_odata[id] = sdata[tid];        
     }}
 }}
 
@@ -201,7 +136,6 @@ void harrisDetectorDevice(const pixel_t *h_idata, const int w, const int h,
                           pixel_t *h_odata)
 {{
     int size = h * w;
-    int kernel_type = 0;
     int memsize = size * sizeof(pixel_t);
     int threadsPerBlock = 32;
     int blocksPerGrid = size / threadsPerBlock;
@@ -224,17 +158,9 @@ void harrisDetectorDevice(const pixel_t *h_idata, const int w, const int h,
     dim3 dimGrid(blocksPerGrid, 1, 1);
     dim3 dimBlock(threadsPerBlock, 1, 1);
 
-    // Execute the Kernel
-    //reduce1<<<dimGrid, dimBlock   >>>(devPtrh_idata, devPtrh_odata, kernel_type, ws, w, threshold, h, size);
-
-    // Copy data from device (results) back to host
-    //cudaMemcpy(h_odata, devPtrh_odata, memsize, cudaMemcpyDeviceToHost);
-
-
-    //kernel_type = 1;
     // Call kernel to calculate corners
     // __global__ functions are called:  Func <<< dim grid, dim block >>> (parameter);
-    reduce1<<<dimGrid, dimBlock>>>(devPtrh_idata, devPtrh_odata, kernel_type, ws, w, threshold, h, size);
+    reduce1<<<dimGrid, dimBlock>>>(devPtrh_idata, devPtrh_odata, ws, w, threshold, h, size);
     
     // Copy data from device (results) back to host
     cudaMemcpy(h_odata, devPtrh_odata, memsize, cudaMemcpyDeviceToHost);
@@ -242,7 +168,6 @@ void harrisDetectorDevice(const pixel_t *h_idata, const int w, const int h,
     // Free device memory
     cudaFree(devPtrh_idata);
     cudaFree(devPtrh_odata);
-
 }}
 
 // print command line format

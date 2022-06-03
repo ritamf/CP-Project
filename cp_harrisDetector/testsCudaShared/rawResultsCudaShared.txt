@@ -1,52 +1,52 @@
 chess.pgm
-Host processing time: 1.021024 (ms)
-Device processing time: 0.327232 (ms)
+Host processing time: 1.075008 (ms)
+Device processing time: 0.328288 (ms)
 
 chessBig.pgm
-Host processing time: 56.281090 (ms)
-Device processing time: 5.639136 (ms)
+Host processing time: 56.525120 (ms)
+Device processing time: 5.524896 (ms)
 
 house.pgm
-Host processing time: 2.157536 (ms)
-Device processing time: 0.467456 (ms)
+Host processing time: 2.134016 (ms)
+Device processing time: 0.461536 (ms)
 
 chessRotate1.pgm
-Host processing time: 1.222656 (ms)
-Device processing time: 0.338912 (ms)
+Host processing time: 1.132192 (ms)
+Device processing time: 0.341152 (ms)
 
 chessL.pgm
-Host processing time: 1.673504 (ms)
-Device processing time: 0.412160 (ms)
+Host processing time: 1.595680 (ms)
+Device processing time: 0.394400 (ms)
 
 Do you want to compare the images (y/n)? y
-Difference between chessLResultsSharedCuda and chessLReferenceSharedCuda
+Difference between chessResultsSharedCuda and chessReferenceSharedCuda
 0 diffs of 1
 0 diffs of 2
 0 diffs of 3
 0 diffs of 4
 0 diffs of 5
-1364 diffs > 5
-Difference between chessLResultsSharedCuda and chessLReferenceSharedCuda
+1280 diffs > 5
+Difference between chessBigResultsSharedCuda and chessBigReferenceSharedCuda
 0 diffs of 1
 0 diffs of 2
 0 diffs of 3
 0 diffs of 4
 0 diffs of 5
-1364 diffs > 5
-Difference between chessLResultsSharedCuda and chessLReferenceSharedCuda
+1920 diffs > 5
+Difference between houseResultsSharedCuda and houseReferenceSharedCuda
 0 diffs of 1
 0 diffs of 2
 0 diffs of 3
 0 diffs of 4
 0 diffs of 5
-1364 diffs > 5
-Difference between chessLResultsSharedCuda and chessLReferenceSharedCuda
+2640 diffs > 5
+Difference between chessRotate1ResultsSharedCuda and chessRotate1ReferenceSharedCuda
 0 diffs of 1
 0 diffs of 2
 0 diffs of 3
 0 diffs of 4
 0 diffs of 5
-1364 diffs > 5
+1640 diffs > 5
 Difference between chessLResultsSharedCuda and chessLReferenceSharedCuda
 0 diffs of 1
 0 diffs of 2
